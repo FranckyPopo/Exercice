@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+from importlib.util import set_loader
 import os
 import sqlite3
 from fixed_file import folder_data
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 
-file_user = os.path.join(folder_data, "users.bd")
+data_users = os.path.join(folder_data, "users.bd")
 
 class Ui_MainWindow(object):
     def window_add_user(self):
@@ -13,9 +14,9 @@ class Ui_MainWindow(object):
         
     def window_list_user(self):
         self.stackedWidget.setCurrentWidget(self.display_user)
-
+        self.display_user_list()
     def creation_data_base(self):
-        conn = sqlite3.connect(file_user)
+        conn = sqlite3.connect(data_users)
         cursor = conn.cursor()
         cursor.execute("""CREATE TABLE IF NOT EXISTS users (
             last_name TEXT,
@@ -38,7 +39,7 @@ class Ui_MainWindow(object):
         
         if (last_name and first_name and age and 
             not last_name.isspace() and not first_name.isspace() and not age.isspace()) :
-            conn = sqlite3.connect(file_user)
+            conn = sqlite3.connect(data_users)
             cursor = conn.cursor()
             cursor.execute("INSERT INTO users VALUES (:last_name, :first_name, :age)", d)
             conn.commit()
@@ -55,11 +56,46 @@ class Ui_MainWindow(object):
             self.msgQuestion.setText("Impossble d'enregistrer l'utilisateur. Veuillez vérifier les informations")
             self.msgQuestion.setStandardButtons(QMessageBox.Ok)
             self.msgQuestion.show() 
+    
+    def get_data(self):
+        conn = sqlite3.connect(data_users)
+        cursor = conn.cursor()
+        data = cursor.execute("SELECT * FROM users").fetchall()
+        conn.commit()
+        conn.close()
         
+        return data
+        
+    def display_user_list(self):
+        self.layout = QtWidgets.QVBoxLayout() 
+        self.tableWidget = QtWidgets.QTableWidget() 
+        self.layout.addWidget(self.tableWidget) 
+        self.display_user.setLayout(self.layout)
+        
+        self.users = self.get_data()
+        self.tableWidget.setRowCount(len(self.users)) 
+        self.tableWidget.setColumnCount(3)
+        
+        for user in self.users:
+            index = self.users.index(user)
+            for item in user:
+                last_name = None
+                first_name = item[1]
+                age = item[2]
+                self.tableWidget.setItem(index, 0, QtWidgets.QTableWidgetItem(last_name))
+                self.tableWidget.setItem(index, 1, QtWidgets.QTableWidgetItem(first_name))
+                self.tableWidget.setItem(index, 2, QtWidgets.QTableWidgetItem(age))
+            
+            self.tableWidget.horizontalHeader().setStretchLastSection(True) 
+            self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch) 
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(883, 530)
+
+        # Vbox 
+        self.vbox = QtWidgets.QVBoxLayout()
+        
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.stackedWidget = QtWidgets.QStackedWidget(self.centralwidget)
