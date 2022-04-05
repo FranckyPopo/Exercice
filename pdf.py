@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+import sys
 import os
 import sqlite3
 from fixed_file import folder_data
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 from fpdf import FPDF
+
+data_users = os.path.join(folder_data, "users.bd")
 
 class Ui_MainWindow(object):
     data_users = os.path.join(folder_data, "users.bd")
@@ -69,9 +72,27 @@ class Ui_MainWindow(object):
         
     def display_user_list(self):
         users = self.get_data()
+        HEADER = ["Nom", "Prénom", "Age"]
         
+        for user in users:
+            index = users.index(user)
+            last_name = user[0]
+            first_name = user[1]
+            age = user[2]
+            
+            self.list_users.setRowCount(len(users))
+            self.list_users.setColumnCount(3)
+            self.list_users.setHorizontalHeaderLabels(HEADER)
+            
+            self.list_users.setItem(index, 0, QtWidgets.QTableWidgetItem(last_name))
+            self.list_users.setItem(index, 1, QtWidgets.QTableWidgetItem(first_name))
+            self.list_users.setItem(index, 2, QtWidgets.QTableWidgetItem(age))
+
+    def create_pdf(self):
+        users = self.get_data()
         pdf = FPDF("P", "cm", "LETTER")
         pdf.add_page()
+
         pdf.set_font("helvetica", "", 14)
 
         pdf.cell(4.5, 1, "N°")
@@ -79,44 +100,18 @@ class Ui_MainWindow(object):
         pdf.cell(4.5, 1, "Prénom")
         pdf.cell(4.5, 1, "Age", ln=1)
 
-        for i in range(100):
-            #last
-            pdf.cell(4.5, 1, "1", border=True,)
-            pdf.cell(4.5, 1, "Afri", border=True,)
-            pdf.cell(4.5, 1, "Kréto", border=True,)
-            pdf.cell(4.5, 1, "19", border=True, ln=1)
+        for user in users:
+            index = users.index(user) + 1
+            last_name = user[0]
+            first_name = user[1]
+            age = user[2]
+            
+            pdf.cell(4.5, 1, f"{index}", border=True,)
+            pdf.cell(4.5, 1, f"{last_name}", border=True,)
+            pdf.cell(4.5, 1, f"{first_name}", border=True,)
+            pdf.cell(4.5, 1, f"{age}", border=True, ln=1)
+        pdf.output("test.pdf")
 
-            pdf.output("test.pdf")
-    
-    def create_pdf(self):
-        print("oui")
-        # users = self.get_data()
-        # users = [list(user) for user in users]
-        # users = [user.append("Abidjan") for user in users]
-        
-        # print(users)
-        
-        data = [
-            ["First name", "Last name", "Age", "City",], # 'testing','size'],
-            ["Jules", "Smith", "34", "San Juan",], # 'testing','size'],
-            ["Mary", "Ramos", "45", "Orlando",], # 'testing','size'],
-            ["Carlson", "Banks", "19", "Los Angeles",], # 'testing','size'],
-            ["Lucas", "Cimon", "31", "Saint-Mahturin-sur-Loire",], # 'testing','size'],
-        ]
-        pdf = PDF()
-        pdf.add_page()
-        pdf.set_font("Times", size=10)
-
-        pdf.create_table(table_data = data,title='I\'m the first title', cell_width='even')
-        pdf.ln()
-        print("FIn")
-        
-        
-        
-        
-
-
-    
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(883, 530)
@@ -188,7 +183,7 @@ class Ui_MainWindow(object):
         self.display_user.setObjectName("display_user")
         self.list_users = QtWidgets.QTableWidget(self.display_user)
         self.list_users.move(70, 80)
-        self.list_users.setFixedSize(500, 150)
+        self.list_users.setFixedSize(320, 250)
         self.list_users.setObjectName("list_users")
         self.list_users.setStyleSheet("""
             QtWidgets#list_users{
@@ -256,11 +251,11 @@ class Ui_MainWindow(object):
 
 
 if __name__ == "__main__":
-    import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.creation_data_base()
-    ui.setupUi(MainWindow)
+    window = Ui_MainWindow()
+    window.creation_data_base()
+    window.setupUi(MainWindow)
+    window.window_add_user()
     MainWindow.show()
     sys.exit(app.exec_())
