@@ -4,18 +4,20 @@ import sqlite3
 from fixed_file import folder_data
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
-
-data_users = os.path.join(folder_data, "users.bd")
+from fpdf import FPDF
 
 class Ui_MainWindow(object):
+    data_users = os.path.join(folder_data, "users.bd")
+    
     def window_add_user(self):
         self.stackedWidget.setCurrentWidget(self.add_user)
         
     def window_list_user(self):
         self.stackedWidget.setCurrentWidget(self.display_user)
         self.display_user_list()
+        
     def creation_data_base(self):
-        conn = sqlite3.connect(data_users)
+        conn = sqlite3.connect(Ui_MainWindow.data_users)
         cursor = conn.cursor()
         cursor.execute("""CREATE TABLE IF NOT EXISTS users (
             last_name TEXT,
@@ -38,7 +40,7 @@ class Ui_MainWindow(object):
         
         if (last_name and first_name and age and 
             not last_name.isspace() and not first_name.isspace() and not age.isspace()) :
-            conn = sqlite3.connect(data_users)
+            conn = sqlite3.connect(Ui_MainWindow.data_users)
             cursor = conn.cursor()
             cursor.execute("INSERT INTO users VALUES (:last_name, :first_name, :age)", d)
             conn.commit()
@@ -57,7 +59,7 @@ class Ui_MainWindow(object):
             self.msgQuestion.show() 
     
     def get_data(self):
-        conn = sqlite3.connect(data_users)
+        conn = sqlite3.connect(Ui_MainWindow.data_users)
         cursor = conn.cursor()
         data = cursor.execute("SELECT * FROM users").fetchall()
         conn.commit()
@@ -67,23 +69,54 @@ class Ui_MainWindow(object):
         
     def display_user_list(self):
         users = self.get_data()
-        HEADER = ["Nom", "Prénom", "Age"]
         
-        self.list_users.setRowCount(len(users))
-        self.list_users.setColumnCount(3)
-        self.list_users.setHorizontalHeaderLabels(HEADER)
-        
-        for user in users:
-            index = users.index(user)
-            last_name = user[0] 
-            first_name = user[1]
-            age = user[2]
-            
-            self.list_users.setItem(index, 0, QtWidgets.QTableWidgetItem(last_name))    
-            self.list_users.setItem(index, 1, QtWidgets.QTableWidgetItem(first_name))    
-            self.list_users.setItem(index, 2, QtWidgets.QTableWidgetItem(age))
-            
+        pdf = FPDF("P", "cm", "LETTER")
+        pdf.add_page()
+        pdf.set_font("helvetica", "", 14)
 
+        pdf.cell(4.5, 1, "N°")
+        pdf.cell(4.5, 1, "Nom")
+        pdf.cell(4.5, 1, "Prénom")
+        pdf.cell(4.5, 1, "Age", ln=1)
+
+        for i in range(100):
+            last
+            pdf.cell(4.5, 1, "1", border=True,)
+            pdf.cell(4.5, 1, "Afri", border=True,)
+            pdf.cell(4.5, 1, "Kréto", border=True,)
+            pdf.cell(4.5, 1, "19", border=True, ln=1)
+
+pdf.output("test.pdf")
+    
+    def create_pdf(self):
+        print("oui")
+        # users = self.get_data()
+        # users = [list(user) for user in users]
+        # users = [user.append("Abidjan") for user in users]
+        
+        # print(users)
+        
+        data = [
+            ["First name", "Last name", "Age", "City",], # 'testing','size'],
+            ["Jules", "Smith", "34", "San Juan",], # 'testing','size'],
+            ["Mary", "Ramos", "45", "Orlando",], # 'testing','size'],
+            ["Carlson", "Banks", "19", "Los Angeles",], # 'testing','size'],
+            ["Lucas", "Cimon", "31", "Saint-Mahturin-sur-Loire",], # 'testing','size'],
+        ]
+        pdf = PDF()
+        pdf.add_page()
+        pdf.set_font("Times", size=10)
+
+        pdf.create_table(table_data = data,title='I\'m the first title', cell_width='even')
+        pdf.ln()
+        print("FIn")
+        
+        
+        
+        
+
+
+    
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(883, 530)
@@ -157,6 +190,11 @@ class Ui_MainWindow(object):
         self.list_users.move(70, 80)
         self.list_users.setFixedSize(500, 150)
         self.list_users.setObjectName("list_users")
+        self.list_users.setStyleSheet("""
+            QtWidgets#list_users{
+                border: 1px solid black;
+            }
+        """)
         self.label_2 = QtWidgets.QLabel(self.display_user)
         self.label_2.setGeometry(QtCore.QRect(60, 20, 121, 31))
         font = QtGui.QFont()
@@ -189,6 +227,7 @@ class Ui_MainWindow(object):
         font.setPointSize(18)
         self.add_user_4.setFont(font)
         self.add_user_4.setObjectName("add_user_4")
+        self.add_user_4.clicked.connect(self.create_pdf)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 883, 24))
