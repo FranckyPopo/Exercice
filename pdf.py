@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from importlib.util import set_loader
 import os
 import sqlite3
 from fixed_file import folder_data
@@ -67,35 +66,27 @@ class Ui_MainWindow(object):
         return data
         
     def display_user_list(self):
-        self.layout = QtWidgets.QVBoxLayout() 
-        self.tableWidget = QtWidgets.QTableWidget() 
-        self.layout.addWidget(self.tableWidget) 
-        self.display_user.setLayout(self.layout)
+        users = self.get_data()
+        HEADER = ["Nom", "Prénom", "Age"]
         
-        self.users = self.get_data()
-        self.tableWidget.setRowCount(len(self.users)) 
-        self.tableWidget.setColumnCount(3)
+        self.list_users.setRowCount(len(users))
+        self.list_users.setColumnCount(3)
+        self.list_users.setHorizontalHeaderLabels(HEADER)
         
-        for user in self.users:
-            index = self.users.index(user)
-            for item in user:
-                last_name = None
-                first_name = item[1]
-                age = item[2]
-                self.tableWidget.setItem(index, 0, QtWidgets.QTableWidgetItem(last_name))
-                self.tableWidget.setItem(index, 1, QtWidgets.QTableWidgetItem(first_name))
-                self.tableWidget.setItem(index, 2, QtWidgets.QTableWidgetItem(age))
+        for user in users:
+            index = users.index(user)
+            last_name = user[0] 
+            first_name = user[1]
+            age = user[2]
             
-            self.tableWidget.horizontalHeader().setStretchLastSection(True) 
-            self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch) 
+            self.list_users.setItem(index, 0, QtWidgets.QTableWidgetItem(last_name))    
+            self.list_users.setItem(index, 1, QtWidgets.QTableWidgetItem(first_name))    
+            self.list_users.setItem(index, 2, QtWidgets.QTableWidgetItem(age))
+            
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(883, 530)
-
-        # Vbox 
-        self.vbox = QtWidgets.QVBoxLayout()
-        
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.stackedWidget = QtWidgets.QStackedWidget(self.centralwidget)
@@ -163,10 +154,9 @@ class Ui_MainWindow(object):
         self.display_user = QtWidgets.QWidget()
         self.display_user.setObjectName("display_user")
         self.list_users = QtWidgets.QTableWidget(self.display_user)
-        self.list_users.setGeometry(QtCore.QRect(10, 70, 861, 341))
+        self.list_users.move(70, 80)
+        self.list_users.setFixedSize(500, 150)
         self.list_users.setObjectName("list_users")
-        self.list_users.setColumnCount(0)
-        self.list_users.setRowCount(0)
         self.label_2 = QtWidgets.QLabel(self.display_user)
         self.label_2.setGeometry(QtCore.QRect(60, 20, 121, 31))
         font = QtGui.QFont()
