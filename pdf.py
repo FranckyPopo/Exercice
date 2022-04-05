@@ -80,13 +80,13 @@ class Ui_MainWindow(object):
         pdf.cell(4.5, 1, "Age", ln=1)
 
         for i in range(100):
-            last
+            #last
             pdf.cell(4.5, 1, "1", border=True,)
             pdf.cell(4.5, 1, "Afri", border=True,)
             pdf.cell(4.5, 1, "Kréto", border=True,)
             pdf.cell(4.5, 1, "19", border=True, ln=1)
 
-pdf.output("test.pdf")
+            pdf.output("test.pdf")
     
     def create_pdf(self):
         print("oui")
