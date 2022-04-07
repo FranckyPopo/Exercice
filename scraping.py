@@ -1,12 +1,13 @@
 from bs4 import BeautifulSoup
 import requests
-from pprint import pprint
 from os import path
-
 
 class Scraping:
     req = requests.get("https://just-scrape-it.com/")
     content_html = req.text
+    
+    def __init__(self) -> None:
+        self.article_categorys()
         
     def list_category(self):
         self.body_html = BeautifulSoup(Scraping.content_html, "html.parser")
@@ -18,12 +19,17 @@ class Scraping:
     
     def article_categorys(self):
         site_web = "https://just-scrape-it.com/"
-        link_categorys = ["collections/hoodie-sweat", "collections/tshirt-t-shirt-tee-shirt", 
-        "collections/gants", "collections/maillots-ete", "collections/stickers"]
+        categorys = [
+            "collections/hoodie-sweat",
+            "collections/tshirt-t-shirt-tee-shirt",
+            "collections/gants",
+            "collections/maillots-ete",
+            "collections/stickers"
+        ]
         
         # On parcour toutes les catégory
-        for link in link_categorys:
-            page_categorys = path.join(site_web, link)
+        for category in categorys:
+            page_categorys = path.join(site_web, category)
             req_category = requests.get(page_categorys)
             html_category = req_category.text
             
@@ -72,4 +78,3 @@ class Scraping:
 
         
 s = Scraping()
-s.article_categorys()
